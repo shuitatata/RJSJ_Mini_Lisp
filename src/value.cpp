@@ -7,18 +7,18 @@
 #include <iomanip>
 #include <sstream>
 std::string BooleanValue::toString() {
-    return value ? "#f" : "#t" ;
+    return value ? "#t" : "#f";
 }
 
 std::string NumericValue::toString() {
     std::stringstream ss;
-    ss<<value;
+    ss << value;
     return ss.str();
 }
 
 std::string StringValue::toString() {
     std::stringstream ss;
-    ss << std::quoted(value,'"');
+    ss << std::quoted(value, '"');
     return ss.str();
 }
 
@@ -34,7 +34,7 @@ std::string PairValue::toString() {
     std::string result = "(";
     result += car->toString();
     auto nowCdr = this->cdr;
-    while (typeid(*nowCdr) == typeid(PairValue)){
+    while (typeid(*nowCdr) == typeid(PairValue)) {
         auto& pair = dynamic_cast<const PairValue&>(*nowCdr);
         result += " ";
         result += pair.car->toString();
@@ -46,4 +46,32 @@ std::string PairValue::toString() {
     }
     result += ")";
     return result;
+}
+
+bool Value::isBoolean() const {
+    return typeid(*this) == typeid(BooleanValue);
+}
+
+bool Value::isNumeric() const {
+    return typeid(*this) == typeid(NumericValue);
+}
+
+bool Value::isString() const {
+    return typeid(*this) == typeid(StringValue);
+}
+
+bool Value::isSymbol() const {
+    return typeid(*this) == typeid(SymbolValue);
+}
+
+bool Value::isNil() const {
+    return typeid(*this) == typeid(NilValue);
+}
+
+bool Value::isPair() const {
+    return typeid(*this) == typeid(PairValue);
+}
+
+bool Value::isSelfEvaluating() const {
+    return isBoolean() || isNumeric() || isString();
 }
