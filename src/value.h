@@ -9,17 +9,17 @@
 #include <utility>
 
 
-class value {
+class Value {
 private:
 public:
-    value() = default;
-    virtual ~value()= default;
+    Value() = default;
+    virtual ~Value()= default;
     virtual std::string toString() = 0;
 };
 
-using ValuePtr = std::shared_ptr<value>;
+using ValuePtr = std::shared_ptr<Value>;
 
-class BooleanValue : public value {
+class BooleanValue : public Value {
 private:
     bool value;
 public:
@@ -28,7 +28,7 @@ public:
     std::string toString() override;
 };
 
-class NumericValue : public value {
+class NumericValue : public Value {
 private:
     double value;
 public:
@@ -37,7 +37,7 @@ public:
     std::string toString() override;
 };
 
-class StringValue : public value {
+class StringValue : public Value {
 private:
     std::string value;
 public:
@@ -46,7 +46,7 @@ public:
     std::string toString() override;
 };
 
-class SymbolValue : public value {
+class SymbolValue : public Value {
 private:
     std::string value;
 public:
@@ -55,7 +55,7 @@ public:
     std::string toString() override;
 };
 
-class NilValue : public value {
+class NilValue : public Value {
 private:
 public:
     NilValue() = default;
@@ -63,12 +63,12 @@ public:
     std::string toString() override;
 };
 
-class PairValue : public value {
+class PairValue : public Value {
 private:
-    std::shared_ptr<value> car;
-    std::shared_ptr<value> cdr;
+    std::shared_ptr<Value> car;
+    std::shared_ptr<Value> cdr;
 public:
-    PairValue(std::shared_ptr<value> car, std::shared_ptr<value> cdr) : car(std::move(car)), cdr(std::move(cdr)) {};
+    PairValue(std::shared_ptr<Value> car, std::shared_ptr<Value> cdr) : car(std::move(car)), cdr(std::move(cdr)) {};
     ~PairValue() override = default;
     std::string toString() override;
 };
