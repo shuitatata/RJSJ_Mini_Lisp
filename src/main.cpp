@@ -19,7 +19,7 @@ struct TestCtx {
 };
 
 int main() {
-    // RJSJ_TEST(TestCtx, Lv2, Lv3);
+    RJSJ_TEST(TestCtx, Lv2, Lv3, Lv4);
     EvalEnv env;
     while (true) {
         try {

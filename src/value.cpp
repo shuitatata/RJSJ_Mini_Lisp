@@ -5,7 +5,6 @@
 #include "value.h"
 
 #include <iomanip>
-#include <sstream>
 
 #include "error.h"
 std::string BooleanValue::toString() {
@@ -120,4 +119,8 @@ bool Value::isList() const {
 
 double Value::asNumber() const {
     return dynamic_cast<const NumericValue*>(this)->getValue();
+}
+
+ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr>& params) const {
+    return func(params);
 }

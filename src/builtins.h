@@ -4,9 +4,13 @@
 
 #ifndef MINI_LISP_BUILTINS_H
 #define MINI_LISP_BUILTINS_H
+#include <unordered_map>
+
 #include "error.h"
 #include "eval_env.h"
 #include "value.h"
 ValuePtr add(const std::vector<ValuePtr>& params);
-
+ValuePtr print(const std::vector<ValuePtr>& params);
+std::unordered_map<std::string, BuiltinFuncType*> builtinsTable{
+    std::make_pair("+", add), std::make_pair("print", print)};
 #endif  // MINI_LISP_BUILTINS_H

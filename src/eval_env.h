@@ -11,6 +11,8 @@ class EvalEnv {
 public:
     EvalEnv();
     ValuePtr eval(ValuePtr expr);
+    ValuePtr apply(ValuePtr proc, std::vector<ValuePtr> args);
+    std::vector<ValuePtr> evalList(ValuePtr expr);
     std::unordered_map<std::string, ValuePtr> symbolTable;
 };
 

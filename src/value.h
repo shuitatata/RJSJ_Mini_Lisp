@@ -111,8 +111,8 @@ private:
     BuiltinFuncType* func;
 
 public:
-    std::unordered_map<std::string, BuiltinFuncType*> builtinFuncTable;
     explicit BuiltinProcValue(BuiltinFuncType* func) : func(func){};
+    ValuePtr call(const std::vector<ValuePtr>& params) const;
     std::string toString() override;
 };
 
