@@ -4,6 +4,12 @@
 #include "builtins.h"
 
 #include <iostream>
+
+const std::unordered_map<std::string, BuiltinFuncType*> builtinsTable = {
+    {"+", &add},
+    {"print", &print},
+};
+
 ValuePtr add(const std::vector<ValuePtr>& params) {
     int result = 0;
     for (const auto& i : params) {

@@ -53,6 +53,10 @@ std::string BuiltinProcValue::toString() {
     return "#<procedure>";
 }
 
+std::string LambdaValue::toString() {
+    return "#<procedure>";
+}
+
 std::vector<ValuePtr> Value::toVector() {
     std::vector<ValuePtr> result;
     auto current = this;
@@ -98,7 +102,8 @@ bool Value::isPair() const {
 }
 
 bool Value::isProcedure() const {
-    return typeid(*this) == typeid(BuiltinProcValue);
+    return typeid(*this) == typeid(BuiltinProcValue) ||
+           typeid(*this) == typeid(LambdaValue);
 }
 
 bool Value::isSelfEvaluating() const {

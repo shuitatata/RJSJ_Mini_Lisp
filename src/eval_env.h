@@ -8,12 +8,15 @@
 
 #include "value.h"
 class EvalEnv {
+private:
+    std::unordered_map<std::string, ValuePtr> symbolTable;
 public:
     EvalEnv();
     ValuePtr eval(ValuePtr expr);
     ValuePtr apply(ValuePtr proc, std::vector<ValuePtr> args);
+    void addVariable(const std::string& name, ValuePtr value);
     std::vector<ValuePtr> evalList(ValuePtr expr);
-    std::unordered_map<std::string, ValuePtr> symbolTable;
+
 };
 
 #endif  // MINI_LISP_EVAL_ENV_H

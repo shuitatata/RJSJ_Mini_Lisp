@@ -11,6 +11,5 @@
 #include "value.h"
 ValuePtr add(const std::vector<ValuePtr>& params);
 ValuePtr print(const std::vector<ValuePtr>& params);
-std::unordered_map<std::string, BuiltinFuncType*> builtinsTable{
-    std::make_pair("+", add), std::make_pair("print", print)};
+extern const std::unordered_map<std::string, BuiltinFuncType*> builtinsTable;
 #endif  // MINI_LISP_BUILTINS_H
