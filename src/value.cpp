@@ -6,6 +6,8 @@
 
 #include <iomanip>
 #include <sstream>
+
+#include "error.h"
 std::string BooleanValue::toString() {
     return value ? "#t" : "#f";
 }
@@ -48,6 +50,30 @@ std::string PairValue::toString() {
     return result;
 }
 
+std::string BuiltinProcValue::toString() {
+    return "#<procedure>";
+}
+
+std::vector<ValuePtr> Value::toVector() {
+    std::vector<ValuePtr> result;
+    auto current = this;
+    while (current->isPair()) {
+        auto&& nowCar = dynamic_cast<const PairValue&>(*current).getCar();
+        auto&& nowCdr = dynamic_cast<const PairValue&>(*current).getCdr();
+        result.push_back(nowCar);
+        current = nowCdr.get();
+    }
+    if (!current->isNil()) {
+        throw LispError("Malformed list: expected pair or nil, got " +
+                        current->toString() + ".");
+    }
+    return result;
+}
+
+std::optional<std::string> SymbolValue::asSymbol() {
+    return std::optional<std::string>{value};
+}
+
 bool Value::isBoolean() const {
     return typeid(*this) == typeid(BooleanValue);
 }
@@ -72,6 +98,26 @@ bool Value::isPair() const {
     return typeid(*this) == typeid(PairValue);
 }
 
+bool Value::isProcedure() const {
+    return typeid(*this) == typeid(BuiltinProcValue);
+}
+
 bool Value::isSelfEvaluating() const {
-    return isBoolean() || isNumeric() || isString();
+    return isBoolean() || isNumeric() || isString() || isProcedure();
+}
+
+bool Value::isList() const {
+    auto current = this;
+    while (!current->isNil()) {
+        if (!current->isPair()) {
+            return false;
+        }
+        auto pair = dynamic_cast<const PairValue*>(current);
+        current = pair->getCdr().get();
+    }
+    return true;
+}
+
+double Value::asNumber() const {
+    return dynamic_cast<const NumericValue*>(this)->getValue();
 }

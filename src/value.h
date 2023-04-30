@@ -6,9 +6,15 @@
 #define MINI_LISP_VALUE_H
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "./token.h"
+
+class Value;
+using ValuePtr = std::shared_ptr<Value>;
+using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
 
 class Value {
 private:
@@ -16,20 +22,23 @@ public:
     Value() = default;
     virtual ~Value() = default;
     virtual std::string toString() = 0;
+    virtual std::optional<std::string> asSymbol(){};
+    std::vector<ValuePtr> toVector();
+    double asNumber() const;
     bool isBoolean() const;
     bool isNumeric() const;
     bool isString() const;
     bool isSymbol() const;
     bool isNil() const;
     bool isPair() const;
+    bool isProcedure() const;
     bool isSelfEvaluating() const;
+    bool isList() const;
 };
-
-using ValuePtr = std::shared_ptr<Value>;
 
 class BooleanValue : public Value {
 private:
-    bool value;
+    const bool value;
 
 public:
     explicit BooleanValue(bool value) : value(value){};
@@ -39,17 +48,20 @@ public:
 
 class NumericValue : public Value {
 private:
-    double value;
+    const double value;
 
 public:
     explicit NumericValue(double value) : value(value){};
     ~NumericValue() override = default;
     std::string toString() override;
+    double getValue() const {
+        return value;
+    };
 };
 
 class StringValue : public Value {
 private:
-    std::string value;
+    const std::string value;
 
 public:
     explicit StringValue(std::string value) : value(std::move(value)){};
@@ -59,12 +71,13 @@ public:
 
 class SymbolValue : public Value {
 private:
-    std::string value;
+    const std::string value;
 
 public:
     explicit SymbolValue(std::string value) : value(std::move(value)){};
     ~SymbolValue() override = default;
     std::string toString() override;
+    std::optional<std::string> asSymbol() override;
 };
 
 class NilValue : public Value {
@@ -77,13 +90,29 @@ public:
 
 class PairValue : public Value {
 private:
-    std::shared_ptr<Value> car;
-    std::shared_ptr<Value> cdr;
+    const std::shared_ptr<Value> car;
+    const std::shared_ptr<Value> cdr;
 
 public:
     PairValue(std::shared_ptr<Value> car, std::shared_ptr<Value> cdr)
         : car(std::move(car)), cdr(std::move(cdr)){};
     ~PairValue() override = default;
+    std::shared_ptr<Value> getCar() const {
+        return car;
+    }
+    std::shared_ptr<Value> getCdr() const {
+        return cdr;
+    }
+    std::string toString() override;
+};
+
+class BuiltinProcValue : public Value {
+private:
+    BuiltinFuncType* func;
+
+public:
+    std::unordered_map<std::string, BuiltinFuncType*> builtinFuncTable;
+    explicit BuiltinProcValue(BuiltinFuncType* func) : func(func){};
     std::string toString() override;
 };
 
