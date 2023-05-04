@@ -1,0 +1,14 @@
+1.可以使用std::string, 只要将Tokenizer类的构造函数的参数类型和成员input的类型也改为std::string即可
+但是，一方面使用const std::string&可以避免拷贝带来的开销；
+另一方面Tokenizer的作用是为了分割字符串，不能修改字符串的内容，所以使用const std::string&更加合适，避免对字符串进行修改。
+
+2.因为每一个token的所有权都被一个TokenPtr独占，不需要多个TokenPtr指向同一个token，
+同时token的生命周期也是由TokenPtr管理的，其紧接着就会被Parser转变为ValuePtr，使用std::shared_ptr可以利用std::move节约开销。
+如果改为裸指针，一方面需要手动delete，在传参过程中容易造成内存泄漏。
+
+3.首先Token类声明了虚函数std::string toString()，在子类中重载了该函数，使得每种token可以转变为std::string，
+然后重载了<<运算符，使得Token类可以直接输出toString()到std::ostream中，这样就可以直接使用std::cout输出Token类了。
+
+4.throw两种Syntax Error，一种是#后跟了错误的字符，一种是字符串未以"结尾
+
+5.在后续的Parser中，需要从前往后依次处理tokens，因此使用deque，在从头部处理数据的时候更加快速。
