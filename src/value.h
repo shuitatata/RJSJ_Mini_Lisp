@@ -111,9 +111,19 @@ private:
     BuiltinFuncType* func;
 
 public:
-    std::unordered_map<std::string, BuiltinFuncType*> builtinFuncTable;
     explicit BuiltinProcValue(BuiltinFuncType* func) : func(func){};
+    ValuePtr call(const std::vector<ValuePtr>& params) const;
     std::string toString() override;
 };
 
+class LambdaValue : public Value {
+private:
+    std::vector<std::string> params;
+    std::vector<ValuePtr> body;
+
+public:
+    LambdaValue(std::vector<std::string> params, std::vector<ValuePtr> body)
+        : params(std::move(params)), body(std::move(body)){};
+    std::string toString() override;
+};
 #endif  // MINI_LISP_VALUE_H

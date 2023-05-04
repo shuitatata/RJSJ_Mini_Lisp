@@ -5,7 +5,6 @@
 #include "value.h"
 
 #include <iomanip>
-#include <sstream>
 
 #include "error.h"
 std::string BooleanValue::toString() {
@@ -54,6 +53,10 @@ std::string BuiltinProcValue::toString() {
     return "#<procedure>";
 }
 
+std::string LambdaValue::toString() {
+    return "#<procedure>";
+}
+
 std::vector<ValuePtr> Value::toVector() {
     std::vector<ValuePtr> result;
     auto current = this;
@@ -99,7 +102,8 @@ bool Value::isPair() const {
 }
 
 bool Value::isProcedure() const {
-    return typeid(*this) == typeid(BuiltinProcValue);
+    return typeid(*this) == typeid(BuiltinProcValue) ||
+           typeid(*this) == typeid(LambdaValue);
 }
 
 bool Value::isSelfEvaluating() const {
@@ -120,4 +124,8 @@ bool Value::isList() const {
 
 double Value::asNumber() const {
     return dynamic_cast<const NumericValue*>(this)->getValue();
+}
+
+ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr>& params) const {
+    return func(params);
 }
