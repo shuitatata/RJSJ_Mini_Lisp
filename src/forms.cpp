@@ -13,12 +13,15 @@
 ValuePtr lambdaForm(const std::vector<ValuePtr> &args, EvalEnv &env);
 
 ValuePtr defineForm(const std::vector<ValuePtr> &args, EvalEnv &env) {
+    for (auto i: args) {
+        //std::cout << i->toString() << std::endl;
+    }
     if (args[0]->isSymbol()) {
         auto name = args[0]->asSymbol();
         env.addVariable(*name, args[1]);
     } else if (args[0]->isPair()) {
         auto decl = args[0];
-        auto body = args[1];
+        //auto body = args[1];
         auto pairDecl = dynamic_cast<const PairValue &>(*decl);
         auto car = std::move(pairDecl.getCar());
         auto cdr = std::move(pairDecl.getCdr());
@@ -26,7 +29,12 @@ ValuePtr defineForm(const std::vector<ValuePtr> &args, EvalEnv &env) {
             auto name = car->asSymbol();
             std::vector<ValuePtr> params;
             params.push_back(std::move(cdr));
-            params.push_back(std::move(body));
+            for (auto &&body: args) {
+                if (body != args[0]) {
+                    params.push_back(std::move(body));
+                    //std::cout << body->toString() << std::endl;
+                }
+            }
             auto lambda = lambdaForm(params, env);
             env.addVariable(*name, lambda);
             //return car;
@@ -89,7 +97,12 @@ ValuePtr lambdaForm(const std::vector<ValuePtr> &args, EvalEnv &env) {
     std::unordered_set<std::string> paramSet;
     //std::cout << args.size();
     auto formals = args[0];
-    auto body = args[1];
+    std::vector<ValuePtr> body{};
+    for (auto i: args) {
+        if (i != args[0]) {
+            body.push_back(i);
+        }
+    }
     while (formals->isPair()) {
         auto car = std::move(dynamic_cast<const PairValue &>(*formals).getCar());
         auto cdr = std::move(dynamic_cast<const PairValue &>(*formals).getCdr());

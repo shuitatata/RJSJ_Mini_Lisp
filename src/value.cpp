@@ -136,7 +136,11 @@ ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr> &params) const {
 
 ValuePtr LambdaValue::call(const std::vector<ValuePtr> &args) const {
     auto childEnv = env->createChild(params, args);
-    auto result = childEnv->eval(body);
-    return result;
+    std::vector<ValuePtr> result{};
+    for (auto i: body) {
+        result.push_back(childEnv->eval(i));
+        //std::cout << childEnv->eval(i) << std::endl;
+    }
+    return result.back();
 
 }

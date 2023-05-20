@@ -158,11 +158,11 @@ class EvalEnv;
 class LambdaValue : public Value {
 private:
     std::vector<std::string> params;
-    ValuePtr body;
+    std::vector<ValuePtr> body;
     std::shared_ptr<EvalEnv> env;
 
 public:
-    LambdaValue(const std::vector<std::string> &params, ValuePtr body, std::shared_ptr<EvalEnv> env)
+    LambdaValue(const std::vector<std::string> &params, std::vector<ValuePtr> body, std::shared_ptr<EvalEnv> env)
             : params{params}, body{std::move(body)}, env{std::move(env)} {};
 
     ValuePtr call(const std::vector<ValuePtr> &args) const;
