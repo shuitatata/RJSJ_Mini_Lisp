@@ -4,12 +4,22 @@
 
 #ifndef MINI_LISP_BUILTINS_H
 #define MINI_LISP_BUILTINS_H
+
 #include <unordered_map>
 
 #include "error.h"
 #include "eval_env.h"
 #include "value.h"
-ValuePtr add(const std::vector<ValuePtr>& params);
-ValuePtr print(const std::vector<ValuePtr>& params);
-extern const std::unordered_map<std::string, BuiltinFuncType*> builtinsTable;
+
+ValuePtr add(const std::vector<ValuePtr> &params);
+
+ValuePtr print(const std::vector<ValuePtr> &params);
+
+ValuePtr sub(const std::vector<ValuePtr> &params);
+
+ValuePtr mul(const std::vector<ValuePtr> &params);
+
+ValuePtr greater(const std::vector<ValuePtr> &params);
+
+extern const std::unordered_map<std::string, BuiltinFuncType *> builtinsTable;
 #endif  // MINI_LISP_BUILTINS_H

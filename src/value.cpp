@@ -5,8 +5,12 @@
 #include "value.h"
 
 #include <iomanip>
+#include <algorithm>
 
 #include "error.h"
+#include "eval_env.h"
+#include <iostream>
+
 std::string BooleanValue::toString() {
     return value ? "#t" : "#f";
 }
@@ -36,7 +40,7 @@ std::string PairValue::toString() {
     result += car->toString();
     auto nowCdr = this->cdr;
     while (typeid(*nowCdr) == typeid(PairValue)) {
-        auto& pair = dynamic_cast<const PairValue&>(*nowCdr);
+        auto &pair = dynamic_cast<const PairValue &>(*nowCdr);
         result += " ";
         result += pair.car->toString();
         nowCdr = pair.cdr;
@@ -61,8 +65,8 @@ std::vector<ValuePtr> Value::toVector() {
     std::vector<ValuePtr> result;
     auto current = this;
     while (current->isPair()) {
-        auto&& nowCar = dynamic_cast<const PairValue&>(*current).getCar();
-        auto&& nowCdr = dynamic_cast<const PairValue&>(*current).getCdr();
+        auto &&nowCar = dynamic_cast<const PairValue &>(*current).getCar();
+        auto &&nowCdr = dynamic_cast<const PairValue &>(*current).getCdr();
         result.push_back(nowCar);
         current = nowCdr.get();
     }
@@ -116,16 +120,23 @@ bool Value::isList() const {
         if (!current->isPair()) {
             return false;
         }
-        auto pair = dynamic_cast<const PairValue*>(current);
+        auto pair = dynamic_cast<const PairValue *>(current);
         current = pair->getCdr().get();
     }
     return true;
 }
 
 double Value::asNumber() const {
-    return dynamic_cast<const NumericValue*>(this)->getValue();
+    return dynamic_cast<const NumericValue *>(this)->getValue();
 }
 
-ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr>& params) const {
+ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr> &params) const {
     return func(params);
+}
+
+ValuePtr LambdaValue::call(const std::vector<ValuePtr> &args) const {
+    auto childEnv = env->createChild(params, args);
+    auto result = childEnv->eval(body);
+    return result;
+
 }
