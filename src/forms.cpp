@@ -87,7 +87,7 @@ ValuePtr lambdaForm(const std::vector<ValuePtr> &args, EvalEnv &env) {
 
     std::vector<std::string> params;
     std::unordered_set<std::string> paramSet;
-    std::cout << args.size();
+    //std::cout << args.size();
     auto formals = args[0];
     auto body = args[1];
     while (formals->isPair()) {

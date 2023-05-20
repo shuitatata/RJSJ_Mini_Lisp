@@ -34,7 +34,8 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
     auto exprPair = dynamic_cast<const PairValue *>(expr.get());
     auto car = std::move(exprPair->getCar());
     auto cdr = std::move(exprPair->getCdr());
-    if (auto name = car->asSymbol()) {
+    if (car->isSymbol()) {
+        auto name = car->asSymbol();
         if (auto it = SPECIAL_FORMS.find(*name); it != SPECIAL_FORMS.end()) {
             return it->second(cdr->toVector(), *this);
         }
