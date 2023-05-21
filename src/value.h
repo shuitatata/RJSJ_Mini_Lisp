@@ -5,6 +5,7 @@
 #ifndef MINI_LISP_VALUE_H
 #define MINI_LISP_VALUE_H
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -13,11 +14,10 @@
 
 #include "./token.h"
 
-
 class Value;
 
 using ValuePtr = std::shared_ptr<Value>;
-using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr> &);
+using BuiltinFuncType = std::function<ValuePtr(const std::vector<ValuePtr> &)>;
 
 class Value {
 private:
@@ -26,13 +26,15 @@ public:
 
     virtual ~Value() = default;
 
-    virtual std::string toString() = 0;
+    virtual std::string toString() const = 0;
 
-    virtual std::optional<std::string> asSymbol() {
+    virtual std::optional<std::string> asSymbol(){
 
     };
 
     std::vector<ValuePtr> toVector();
+
+    static ValuePtr fromVector(const std::vector<ValuePtr> &values);
 
     double asNumber() const;
 
@@ -53,6 +55,10 @@ public:
     bool isSelfEvaluating() const;
 
     bool isList() const;
+
+    bool isAtom() const;
+
+    bool isTrue() const;
 };
 
 class BooleanValue : public Value {
@@ -60,11 +66,15 @@ private:
     const bool value;
 
 public:
-    explicit BooleanValue(bool value) : value(value) {};
+    explicit BooleanValue(bool value) : value(value){};
 
     ~BooleanValue() override = default;
 
-    std::string toString() override;
+    std::string toString() const override;
+
+    bool asBoolean() const {
+        return value;
+    }
 };
 
 class NumericValue : public Value {
@@ -72,11 +82,11 @@ private:
     const double value;
 
 public:
-    explicit NumericValue(double value) : value(value) {};
+    explicit NumericValue(double value) : value(value){};
 
     ~NumericValue() override = default;
 
-    std::string toString() override;
+    std::string toString() const override;
 
     double getValue() const {
         return value;
@@ -88,11 +98,11 @@ private:
     const std::string value;
 
 public:
-    explicit StringValue(std::string value) : value(std::move(value)) {};
+    explicit StringValue(std::string value) : value(std::move(value)){};
 
     ~StringValue() override = default;
 
-    std::string toString() override;
+    std::string toString() const override;
 };
 
 class SymbolValue : public Value {
@@ -100,11 +110,11 @@ private:
     const std::string value;
 
 public:
-    explicit SymbolValue(std::string value) : value(std::move(value)) {};
+    explicit SymbolValue(std::string value) : value(std::move(value)){};
 
     ~SymbolValue() override = default;
 
-    std::string toString() override;
+    std::string toString() const override;
 
     std::optional<std::string> asSymbol() override;
 };
@@ -116,17 +126,17 @@ public:
 
     ~NilValue() override = default;
 
-    std::string toString() override;
+    std::string toString() const override;
 };
 
 class PairValue : public Value {
 private:
-    const std::shared_ptr<Value> car;
-    const std::shared_ptr<Value> cdr;
+    std::shared_ptr<Value> car;
+    std::shared_ptr<Value> cdr;
 
 public:
     PairValue(std::shared_ptr<Value> car, std::shared_ptr<Value> cdr)
-            : car(std::move(car)), cdr(std::move(cdr)) {};
+        : car(std::move(car)), cdr(std::move(cdr)){};
 
     ~PairValue() override = default;
 
@@ -138,7 +148,7 @@ public:
         return cdr;
     }
 
-    std::string toString() override;
+    std::string toString() const override;
 };
 
 class BuiltinProcValue : public Value {
@@ -146,11 +156,11 @@ private:
     BuiltinFuncType *func;
 
 public:
-    explicit BuiltinProcValue(BuiltinFuncType *func) : func(func) {};
+    explicit BuiltinProcValue(BuiltinFuncType *func) : func(func){};
 
     ValuePtr call(const std::vector<ValuePtr> &params) const;
 
-    std::string toString() override;
+    std::string toString() const override;
 };
 
 class EvalEnv;
@@ -162,12 +172,13 @@ private:
     std::shared_ptr<EvalEnv> env;
 
 public:
-    LambdaValue(const std::vector<std::string> &params, std::vector<ValuePtr> body, std::shared_ptr<EvalEnv> env)
-            : params{params}, body{std::move(body)}, env{std::move(env)} {};
+    LambdaValue(const std::vector<std::string> &params,
+                std::vector<ValuePtr> body, std::shared_ptr<EvalEnv> env)
+        : params{params}, body{std::move(body)}, env{std::move(env)} {};
 
     ValuePtr call(const std::vector<ValuePtr> &args) const;
 
-    std::string toString() override;
+    std::string toString() const override;
 };
 
 #endif  // MINI_LISP_VALUE_H

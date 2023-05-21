@@ -4,38 +4,38 @@
 
 #include "value.h"
 
-#include <iomanip>
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 
 #include "error.h"
 #include "eval_env.h"
-#include <iostream>
 
-std::string BooleanValue::toString() {
+std::string BooleanValue::toString() const {
     return value ? "#t" : "#f";
 }
 
-std::string NumericValue::toString() {
+std::string NumericValue::toString() const {
     std::stringstream ss;
     ss << value;
     return ss.str();
 }
 
-std::string StringValue::toString() {
+std::string StringValue::toString() const {
     std::stringstream ss;
     ss << std::quoted(value, '"');
     return ss.str();
 }
 
-std::string SymbolValue::toString() {
+std::string SymbolValue::toString() const {
     return value;
 }
 
-std::string NilValue::toString() {
+std::string NilValue::toString() const {
     return "()";
 }
 
-std::string PairValue::toString() {
+std::string PairValue::toString() const {
     std::string result = "(";
     result += car->toString();
     auto nowCdr = this->cdr;
@@ -53,11 +53,11 @@ std::string PairValue::toString() {
     return result;
 }
 
-std::string BuiltinProcValue::toString() {
+std::string BuiltinProcValue::toString() const {
     return "#<procedure>";
 }
 
-std::string LambdaValue::toString() {
+std::string LambdaValue::toString() const {
     return "#<procedure>";
 }
 
@@ -77,8 +77,21 @@ std::vector<ValuePtr> Value::toVector() {
     return result;
 }
 
+ValuePtr Value::fromVector(const std::vector<ValuePtr> &v) {
+    ValuePtr result = std::make_shared<NilValue>();
+    for (auto it = v.rbegin(); it != v.rend(); ++it) {
+        result = std::make_shared<PairValue>(*it, result);
+    }
+    return result;
+}
+
 std::optional<std::string> SymbolValue::asSymbol() {
     return std::optional<std::string>{value};
+}
+
+bool Value::isTrue() const {
+    if (!isBoolean()) return true;
+    return dynamic_cast<const BooleanValue *>(this)->asBoolean();
 }
 
 bool Value::isBoolean() const {
@@ -126,21 +139,24 @@ bool Value::isList() const {
     return true;
 }
 
+bool Value::isAtom() const {
+    return isBoolean() || isNumeric() || isString() || isSymbol() || isNil();
+}
+
 double Value::asNumber() const {
     return dynamic_cast<const NumericValue *>(this)->getValue();
 }
 
 ValuePtr BuiltinProcValue::call(const std::vector<ValuePtr> &params) const {
-    return func(params);
+    return (*func)(params);
 }
 
 ValuePtr LambdaValue::call(const std::vector<ValuePtr> &args) const {
     auto childEnv = env->createChild(params, args);
     std::vector<ValuePtr> result{};
-    for (auto i: body) {
+    for (auto i : body) {
         result.push_back(childEnv->eval(i));
-        //std::cout << childEnv->eval(i) << std::endl;
+        // std::cout << childEnv->eval(i) << std::endl;
     }
     return result.back();
-
 }
