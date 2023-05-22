@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24.2)
 project(mini_lisp)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 aux_source_directory(src SOURCES)
-add_executable(mini_lisp ${SOURCES} src/value.cpp src/parser.cpp src/eval_env.cpp src/eval_env.h src/builtins.cpp src/builtins.h src/forms.cpp src/forms.h)
+add_executable(mini_lisp ${SOURCES} src/value.cpp src/parser.cpp src/eval_env.cpp src/eval_env.h src/builtins.cpp src/builtins.h src/forms.cpp src/forms.h src/repl.cpp src/repl.h)
 set_target_properties(
         mini_lisp
         PROPERTIES CXX_STANDARD 20
