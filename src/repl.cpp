@@ -12,27 +12,6 @@
 #include "./parser.h"
 #include "./tokenizer.h"
 #include "error.h"
-void repl() {
-    auto env = EvalEnv::createGlobal();
-    while (true) {
-        try {
-            std::cout << ">>> ";
-            std::string line;
-            std::getline(std::cin, line);
-            if (std::cin.eof()) {
-                std::exit(0);
-            }
-            auto tokens = Tokenizer::tokenize(line);
-            Parser parser(std::move(tokens));  // TokenPtr 不支持复制
-            auto value = parser.parse();
-            auto result = env->eval(std::move(value));
-            std::cout << result->toString() << std::endl;  // 输出外部表示
-        } catch (std::runtime_error &e) {
-            std::cerr << "Error: " << e.what() << std::endl;
-        }
-    }
-}
-
 bool loadFileFinishHelper(std::string statement)  // 判断表达式是否完整
 {
     int brackets{};
@@ -50,6 +29,28 @@ bool loadFileFinishHelper(std::string statement)  // 判断表达式是否完整
         return true;
     } else {
         return false;
+    }
+}
+void repl() {
+    auto env = EvalEnv::createGlobal();
+    while (true) {
+        try {
+            std::cout << ">>> ";
+            std::string line;
+            std::getline(std::cin, line);
+            while (!loadFileFinishHelper(line)) {
+                std::string temp;
+                std::getline(std::cin, temp);
+                line += temp;
+            }
+            auto tokens = Tokenizer::tokenize(line);
+            Parser parser(std::move(tokens));  // TokenPtr 不支持复制
+            auto value = parser.parse();
+            auto result = env->eval(std::move(value));
+            std::cout << result->toString() << std::endl;  // 输出外部表示
+        } catch (std::runtime_error &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
     }
 }
 
